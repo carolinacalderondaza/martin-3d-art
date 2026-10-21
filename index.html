@@ -3,18 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIM - We print beautiful 3D art</title>
+    <title>NIM - 3D Art & Drone Services</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lato', sans-serif; }
         body { background-color: #f4f6f9; color: #333; line-height: 1.6; padding-bottom: 80px; }
-        header { background: #111; color: #fff; padding: 2.5rem 1rem; text-align: center; }
+        header { background: #111; color: #fff; padding: 2.5rem 1rem 1.5rem; text-align: center; }
         header h1 { font-size: 2.5rem; margin-bottom: 0.3rem; color: #f39c12; letter-spacing: 2px; }
         header p { font-size: 1.1rem; color: #aaa; }
         
+        /* === NAVEGACIÓN POR PESTAÑAS === */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 1.5rem;
+        }
+        .tab-btn {
+            background: #222;
+            color: #ccc;
+            border: 2px solid #444;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .tab-btn:hover { background: #333; color: #fff; }
+        .tab-btn.active { background: #f39c12; color: #111; border-color: #f39c12; }
+
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         
-        /* === PANEL DE CARRITO / PEDIDO ARRIBA === */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* === PANEL DE CARRITO / PEDIDO === */
         .cart-panel {
             background: #fff;
             border-radius: 10px;
@@ -28,7 +52,6 @@
         .cart-item-controls { display: flex; align-items: center; gap: 10px; }
         .cart-item-controls button { background: #ddd; border: none; width: 25px; height: 25px; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .cart-item-controls button:hover { background: #ccc; }
-        
         .cart-total { font-size: 1.4rem; font-weight: 900; color: #e67e22; text-align: right; margin: 1.5rem 0; }
         
         .form-group { margin-bottom: 1.5rem; }
@@ -37,7 +60,6 @@
         
         .btn-checkout { background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; text-align: center; transition: background 0.2s; }
         .btn-checkout:hover { background: #219653; }
-
         .empty-cart { color: #888; font-style: italic; text-align: center; padding: 1rem 0; }
 
         .palette-section { background: #fff; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -51,26 +73,52 @@
         
         .card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-        
-        .card img { 
-            width: 100%; 
-            height: 180px;            
-            object-fit: contain;      
-            background-color: #fafafa; 
-            padding: 10px;            
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-        }
+        .card img { width: 100%; height: 180px; object-fit: contain; background-color: #fafafa; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
         
         .card-content { padding: 1.2rem; display: flex; flex-direction: column; flex-grow: 1; }
         .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: #2c3e50; }
         .card-details { font-size: 0.88rem; color: #666; margin-bottom: 1rem; flex-grow: 1; }
         .card-price { font-size: 1.25rem; font-weight: 900; color: #e67e22; margin-bottom: 1rem; }
         
-        /* === BOTÓN DINÁMICO DE SELECCIÓN === */
         .btn-add { background: #3498db; color: white; border: none; padding: 0.7rem; border-radius: 5px; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.2s; }
         .btn-add:hover { background: #2980b9; }
         .btn-add.selected { background: #27ae60 !important; }
+
+        /* === ESTILOS SECCIÓN DRON === */
+        .drone-hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+            color: #fff;
+            padding: 3rem 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .drone-hero h2 { font-size: 2.2rem; color: #f39c12; margin-bottom: 0.5rem; }
+        .drone-hero p { font-size: 1.1rem; max-width: 800px; margin: 0 auto; }
+
+        .drone-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .drone-card h3 { color: #2c3e50; font-size: 1.3rem; margin-bottom: 0.5rem; }
+        .drone-card p { color: #666; font-size: 0.95rem; margin-bottom: 1.5rem; flex-grow: 1; }
+        .btn-drone-consult {
+            background: #27ae60;
+            color: white;
+            padding: 0.8rem;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            transition: background 0.2s;
+        }
+        .btn-drone-consult:hover { background: #219653; }
 
         /* === MODAL DE FOTOS === */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
@@ -87,51 +135,98 @@
 
     <header>
         <h1>NIM</h1>
-        <p>We print beautiful 3D art — AMORES PARA TODOS</p>
+        <p>We print beautiful 3D art & Aerial Drone Services</p>
+        
+        <!-- PESTAÑAS DE NAVEGACIÓN -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="cambiarPestana('catalogo')">🎨 Impresión 3D</button>
+            <button class="tab-btn" onclick="cambiarPestana('dron')">🚁 Servicios con Dron</button>
+        </div>
     </header>
 
     <div class="container">
 
-        <!-- PANEL DE CARRITO Y PEDIDO (UBICADO ARRIBA) -->
-        <div class="cart-panel" id="cart-section">
-            <h3>🛒 Tu Pedido Actual</h3>
-            <div id="cart-items-container">
-                <p class="empty-cart">Aún no has agregado ningún producto a tu pedido.</p>
-            </div>
+        <!-- PESTAÑA 1: CATÁLOGO DE IMPRESIÓN 3D -->
+        <div id="tab-catalogo" class="tab-content active">
             
-            <div class="cart-total" id="cart-total-display" style="display: none;">
-                Total estimado: $0
-            </div>
-
-            <div id="checkout-form-container" style="display: none;">
-                <div class="form-group">
-                    <label for="colores-cliente">🎨 Indica aquí los colores deseados para tus ítems:</label>
-                    <textarea id="colores-cliente" placeholder="Ej: Deadpool en rojo y negro, Batman en gris oscuro, Mici20 con camisa blanca..."></textarea>
+            <!-- PANEL DE CARRITO Y PEDIDO -->
+            <div class="cart-panel" id="cart-section">
+                <h3>🛒 Tu Pedido de Impresión 3D</h3>
+                <div id="cart-items-container">
+                    <p class="empty-cart">Aún no has agregado ningún producto a tu pedido.</p>
                 </div>
-                <button class="btn-checkout" onclick="enviarPedidoWhatsApp()">Enviar Pedido por WhatsApp 📱</button>
+                
+                <div class="cart-total" id="cart-total-display" style="display: none;">
+                    Total estimado: $0
+                </div>
+
+                <div id="checkout-form-container" style="display: none;">
+                    <div class="form-group">
+                        <label for="colores-cliente">🎨 Indica aquí los colores deseados para tus ítems:</label>
+                        <textarea id="colores-cliente" placeholder="Ej: Deadpool en rojo y negro, Batman en gris oscuro..."></textarea>
+                    </div>
+                    <button class="btn-checkout" onclick="enviarPedidoWhatsApp()">Enviar Pedido por WhatsApp 📱</button>
+                </div>
             </div>
+
+            <!-- PALETA DE COLORES -->
+            <div class="palette-section">
+                <h3>Paleta de colores disponibles</h3>
+                <p>Elegí el color y material ideal para tu impresión 3D (clic en la imagen para ampliar).</p>
+                <img src="NIM_archivos/67b6314e94e7c174a98dfa31_colores.jpeg" alt="Paleta de Colores" onclick="abrirModal(this.src, 'Paleta de colores disponibles')">
+            </div>
+
+            <div id="status-msg">Cargando catálogo desde Google Sheets...</div>
+
+            <div id="catalogo-container" style="display: none;">
+                <h2 class="section-title">Catálogo de Productos</h2>
+                <div class="grid" id="product-grid"></div>
+
+                <h2 class="section-title" style="margin-top: 3rem;">Accesorios y Adicionales</h2>
+                <div class="grid" id="accessories-grid"></div>
+            </div>
+
         </div>
 
-        <!-- PALETA DE COLORES -->
-        <div class="palette-section">
-            <h3>Paleta de colores disponibles</h3>
-            <p>Elegí el color y material ideal para tu impresión 3D (clic en la imagen para ampliar).</p>
-            <img src="NIM_archivos/67b6314e94e7c174a98dfa31_colores.jpeg" alt="Paleta de Colores" onclick="abrirModal(this.src, 'Paleta de colores disponibles')">
-        </div>
+        <!-- PESTAÑA 2: SERVICIOS CON DRON -->
+        <div id="tab-dron" class="tab-content">
+            
+            <div class="drone-hero">
+                <h2>Servicios Aéreos e Inspección con Dron</h2>
+                <p>Soluciones audiovisuales, fotogrametría y mediciones técnicas de alta precisión para arquitectura, construcciones, eventos y proyectos comerciales.</p>
+            </div>
 
-        <div id="status-msg">Cargando catálogo desde Google Sheets...</div>
+            <div class="grid">
+                <div class="drone-card">
+                    <div>
+                        <h3>📐 Relevamientos y Fotogrametría</h3>
+                        <p>Mapeo aéreo de terrenos, modelos 3D de elevación, ortomosaicos de alta resolución y curvas de nivel ideales para topografía, arquitectura y obras civiles.</p>
+                    </div>
+                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola!%20Quiero%20consultar%20por%20un%20servicio%20de%20Relevamiento%20con%20Dron" target="_blank">Consultar Cotización 📱</a>
+                </div>
 
-        <div id="catalogo-container" style="display: none;">
-            <h2 class="section-title">Catálogo de Productos</h2>
-            <div class="grid" id="product-grid"></div>
+                <div class="drone-card">
+                    <div>
+                        <h3>🏗️ Inspección Técnica y Avances de Obra</h3>
+                        <p>Seguimiento periódico de construcciones, inspección de techos, cubiertas y estructuras complejas de difícil acceso sin riesgo humano.</p>
+                    </div>
+                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola!%20Quiero%20consultar%20por%20un%20servicio%20de%20Inspecci%C3%B3n%20y%20Seguimiento%20de%20Obra" target="_blank">Consultar Cotización 📱</a>
+                </div>
 
-            <h2 class="section-title" style="margin-top: 3rem;">Accesorios y Adicionales</h2>
-            <div class="grid" id="accessories-grid"></div>
+                <div class="drone-card">
+                    <div>
+                        <h3>🎬 Videos y Fotos Promocionales (4K)</h3>
+                        <p>Captura de contenido audiovisual aéreo impactante para bienes raíces, desarrollo turístico, eventos corporativos, deportes y branding.</p>
+                    </div>
+                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola!%20Quiero%20consultar%20por%20Video/Fotograf%C3%ADa%20A%C3%A9rea%20Promocional" target="_blank">Consultar Cotización 📱</a>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL DE IMÁGENES -->
     <div id="image-modal" class="modal" onclick="cerrarModal()">
         <span class="close-modal" onclick="cerrarModal()">&times;</span>
         <img class="modal-content" id="modal-img" onclick="event.stopPropagation()">
@@ -139,14 +234,28 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 NIM 3D Art. Catálogo sincronizado en vivo con Google Sheets.</p>
+        <p>&copy; 2026 NIM. Impresión 3D Artística & Servicios Aéreos.</p>
     </footer>
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTvL1QDJehc_On3y8fXAX3e2lCusKoS5yTz5CxCWRkg7-Vv4hI46s2r8Du3d-QlqPQ_ZmL-pEW80RA/pub?output=csv';
-        
         let carrito = [];
 
+        // Cambio de Pestañas
+        function cambiarPestana(nombreTab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (nombreTab === 'catalogo') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tab-catalogo').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-dron').classList.add('active');
+            }
+        }
+
+        // Modal
         function abrirModal(src, titulo) {
             document.getElementById('image-modal').style.display = 'flex';
             document.getElementById('modal-img').src = src;
@@ -157,11 +266,9 @@
             document.getElementById('image-modal').style.display = 'none';
         }
 
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') cerrarModal();
-        });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cerrarModal(); });
 
-        // Funciones del Carrito
+        // Carrito
         function agregarAlCarrito(nombre, precio) {
             const itemExistente = carrito.find(item => item.nombre === nombre);
             if (itemExistente) {
@@ -170,30 +277,24 @@
                 carrito.push({ nombre, precio, cantidad: 1 });
             }
             actualizarCarrito();
-            actualizarBotonesSeleccionados();
         }
 
         function cambiarCantidad(nombre, delta) {
             const item = carrito.find(i => i.nombre === nombre);
             if (item) {
                 item.cantidad += delta;
-                if (item.cantidad <= 0) {
-                    carrito = carrito.filter(i => i.nombre !== nombre);
-                }
+                if (item.cantidad <= 0) carrito = carrito.filter(i => i.nombre !== nombre);
             }
             actualizarCarrito();
-            actualizarBotonesSeleccionados();
         }
 
         function actualizarBotonesSeleccionados() {
-            // Limpiar todos los botones
             const botones = document.querySelectorAll('.btn-add');
             botones.forEach(btn => {
                 btn.classList.remove('selected');
                 btn.innerText = 'Agregar al pedido 🛒';
             });
 
-            // Marcar los que están en el carrito
             carrito.forEach(item => {
                 const btn = document.getElementById(`btn-${btoa(item.nombre).replace(/=/g, '')}`);
                 if (btn) {
@@ -239,6 +340,7 @@
             totalDisplay.innerText = `Total estimado: $${total.toLocaleString('es-AR')}`;
             totalDisplay.style.display = 'block';
             checkoutContainer.style.display = 'block';
+            actualizarBotonesSeleccionados();
         }
 
         function enviarPedidoWhatsApp() {
@@ -258,8 +360,7 @@
                 mensaje += `\n*Colores solicitados:*\n${colores}`;
             }
 
-            const urlWA = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-            window.open(urlWA, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
         // Cargar Catálogo desde CSV
