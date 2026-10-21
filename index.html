@@ -16,7 +16,8 @@
         
         .palette-section { background: #fff; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .palette-section h3 { color: #2c3e50; margin-bottom: 0.5rem; }
-        .palette-section img { max-width: 100%; height: auto; border-radius: 6px; margin-top: 1rem; }
+        .palette-section img { max-width: 100%; height: auto; border-radius: 6px; margin-top: 1rem; cursor: pointer; transition: opacity 0.2s; }
+        .palette-section img:hover { opacity: 0.9; }
 
         h2.section-title { font-size: 1.8rem; margin: 2rem 0 1rem; border-bottom: 2px solid #ddd; padding-bottom: 0.5rem; color: #2c3e50; }
         
@@ -25,14 +26,19 @@
         .card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
         
-        /* === AJUSTE DE IMÁGENES === */
+        /* === IMÁGENES DE PRODUCTOS (HACIBLES) === */
         .card img { 
             width: 100%; 
-            height: 180px;            /* Altura más compacta */
-            object-fit: contain;      /* Mantiene la foto completa sin recortar */
-            background-color: #fafafa; /* Fondo suave para resaltar el producto */
-            padding: 10px;            /* Margen interno para que no toque los bordes */
+            height: 180px;            
+            object-fit: contain;      
+            background-color: #fafafa; 
+            padding: 10px;            
             border-bottom: 1px solid #eee;
+            cursor: pointer;          /* Muestra el puntero de mano al pasar el mouse */
+            transition: opacity 0.2s;
+        }
+        .card img:hover {
+            opacity: 0.85;            /* Sutil efecto al posar el cursor */
         }
         
         .card-content { padding: 1.2rem; display: flex; flex-direction: column; flex-grow: 1; }
@@ -45,6 +51,60 @@
         
         #status-msg { text-align: center; padding: 2rem; font-size: 1.2rem; color: #666; }
         
+        /* === ESTILOS DEL MODAL / VISOR EMERGENTE DE FOTOS === */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: zoom 0.25s ease-out;
+        }
+        #modal-caption {
+            margin: 15px auto 0;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: #fff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-modal:hover {
+            color: #f39c12;
+        }
+
+        @keyframes zoom {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         footer { background: #222; color: #aaa; text-align: center; padding: 2rem; margin-top: 3rem; font-size: 0.9rem; }
     </style>
 </head>
@@ -60,11 +120,11 @@
         <!-- PALETA DE COLORES -->
         <div class="palette-section">
             <h3>Paleta de colores disponibles</h3>
-            <p>Elegí el color y material ideal para tu impresión 3D.</p>
-            <img src="NIM_archivos/67b6314e94e7c174a98dfa31_colores.jpeg" alt="Paleta de Colores">
+            <p>Elegí el color y material ideal para tu impresión 3D (clic para ampliar).</p>
+            <img src="NIM_archivos/67b6314e94e7c174a98dfa31_colores.jpeg" alt="Paleta de Colores" onclick="abrirModal(this.src, 'Paleta de colores disponibles')">
         </div>
 
-        <div id="status-msg">Cargando catálogo...</div>
+        <div id="status-msg">Cargando catálogo desde Google Sheets...</div>
 
         <div id="catalogo-container" style="display: none;">
             <h2 class="section-title">Catálogo de Productos</h2>
@@ -76,12 +136,41 @@
 
     </div>
 
+    <!-- VENTANA EMERGENTE (LIGHTBOX) -->
+    <div id="image-modal" class="modal" onclick="cerrarModal()">
+        <span class="close-modal" onclick="cerrarModal()">&times;</span>
+        <img class="modal-content" id="modal-img" onclick="event.stopPropagation()">
+        <div id="modal-caption"></div>
+    </div>
+
     <footer>
         <p>&copy; 2026 NIM 3D Art. Catálogo sincronizado en vivo con Google Sheets.</p>
     </footer>
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTvL1QDJehc_On3y8fXAX3e2lCusKoS5yTz5CxCWRkg7-Vv4hI46s2r8Du3d-QlqPQ_ZmL-pEW80RA/pub?output=csv';
+
+        // Funciones del Visor de Fotos (Modal)
+        function abrirModal(src, titulo) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-img');
+            const captionText = document.getElementById('modal-caption');
+
+            modal.style.display = 'flex';
+            modalImg.src = src;
+            captionText.innerText = titulo;
+        }
+
+        function cerrarModal() {
+            document.getElementById('image-modal').style.display = 'none';
+        }
+
+        // Cerrar con la tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarModal();
+            }
+        });
 
         async function cargarCatalogo() {
             const statusMsg = document.getElementById('status-msg');
@@ -131,7 +220,9 @@
                         const card = document.createElement('div');
                         card.className = 'card';
                         card.innerHTML = `
-                            <img src="${imagen}" alt="${nombre}" onerror="this.src='https://via.placeholder.com/300x180?text=NIM+3D+Art'">
+                            <img src="${imagen}" alt="${nombre}" 
+                                 onclick="abrirModal('${imagen}', '${nombre}')" 
+                                 onerror="this.src='https://via.placeholder.com/300x180?text=NIM+3D+Art'">
                             <div class="card-content">
                                 <div class="card-title">${nombre}</div>
                                 <div class="card-details">${detalles}</div>
