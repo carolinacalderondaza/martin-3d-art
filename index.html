@@ -47,7 +47,6 @@
             padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-            position: relative;
         }
         .welcome-card h2 {
             color: #2c3e50;
@@ -70,15 +69,6 @@
             font-weight: 700;
             color: #856404;
         }
-        .drone-link-btn {
-            display: inline-block;
-            margin-top: 0.5rem;
-            color: #2980b9;
-            font-weight: bold;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-        .drone-link-btn:hover { color: #1a5276; }
 
         /* === PANEL DE CARRITO / PEDIDO === */
         .cart-panel {
@@ -169,7 +159,7 @@
         .close-modal { position: absolute; top: 15px; right: 25px; color: #fff; font-size: 35px; font-weight: bold; cursor: pointer; }
         .close-modal:hover { color: #f39c12; }
 
-        #status-msg { text-align: center; padding: 2rem; font-size: 1.2rem; color: #666; }
+        .status-msg { text-align: center; padding: 2rem; font-size: 1.2rem; color: #666; }
         footer { background: #222; color: #aaa; text-align: center; padding: 2rem; margin-top: 3rem; font-size: 0.9rem; }
     </style>
 </head>
@@ -198,9 +188,8 @@
                     Tengo 10 años, me apasiona la tecnología y soy el creador de este emprendimiento. Te ofrezco mi servicio de <span class="welcome-highlight">impresiones 3D</span>, donde podés pedirme las piezas y figuras que están de moda, o podemos evaluar hacer una <span class="welcome-highlight">pieza a medida</span> por si se te rompió algo y necesitás reemplazarlo.
                 </p>
                 <p>
-                    Además, realizo <span class="welcome-highlight">servicios de videos con dron</span> para tomas promocionales, relevamiento de techos, inspección de estructuras altas, mediciones de terrenos y ¡muchas posibilidades más!
+                    También ofrezco servicios de <span class="welcome-highlight">videos con dron</span> para tomas promocionales, relevamiento de techos, inspección de estructuras altas, mediciones de terrenos y ¡muchas posibilidades más! Podes explorar esa sección desde el menú superior.
                 </p>
-                <span class="drone-link-btn" onclick="cambiarPestana('dron')">👉 Conocé más sobre mis servicios con Dron haciendo clic acá</span>
             </div>
 
             <!-- PANEL DE CARRITO Y PEDIDO -->
@@ -230,7 +219,7 @@
                 <img src="NIM_archivos/67b6314e94e7c174a98dfa31_colores.jpeg" alt="Paleta de Colores" onclick="abrirModal(this.src, 'Paleta de colores disponibles')">
             </div>
 
-            <div id="status-msg">Cargando catálogo desde Google Sheets...</div>
+            <div id="status-msg-3d" class="status-msg">Cargando catálogo...</div>
 
             <div id="catalogo-container" style="display: none;">
                 <h2 class="section-title">Catálogo de Productos</h2>
@@ -250,31 +239,8 @@
                 <p>Soluciones audiovisuales, fotogrametría y mediciones técnicas de alta precisión para arquitectura, construcciones, eventos y proyectos comerciales.</p>
             </div>
 
-            <div class="grid">
-                <div class="drone-card">
-                    <div>
-                        <h3>📐 Relevamientos y Fotogrametría</h3>
-                        <p>Mapeo aéreo de terrenos, modelos 3D de elevación, ortomosaicos de alta resolución y curvas de nivel ideales para topografía, arquitectura y obras civiles.</p>
-                    </div>
-                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola%20Mart%C3%ADn!%20Quiero%20consultar%20por%20un%20servicio%20de%20Relevamiento%20con%20Dron" target="_blank">Consultar Cotización 📱</a>
-                </div>
-
-                <div class="drone-card">
-                    <div>
-                        <h3>🏗️ Inspección Técnica y Avances de Obra</h3>
-                        <p>Seguimiento periódico de construcciones, inspección de techos, cubiertas y estructuras complejas de difícil acceso sin riesgo humano.</p>
-                    </div>
-                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola%20Mart%C3%ADn!%20Quiero%20consultar%20por%20un%20servicio%20de%20Inspecci%C3%B3n%20y%20Seguimiento%20de%20Obra" target="_blank">Consultar Cotización 📱</a>
-                </div>
-
-                <div class="drone-card">
-                    <div>
-                        <h3>🎬 Videos y Fotos Promocionales (4K)</h3>
-                        <p>Captura de contenido audiovisual aéreo impactante para bienes raíces, desarrollo turístico, eventos corporativos, deportes y branding.</p>
-                    </div>
-                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola%20Mart%C3%ADn!%20Quiero%20consultar%20por%20Video/Fotograf%C3%ADa%20A%C3%A9rea%20Promocional" target="_blank">Consultar Cotización 📱</a>
-                </div>
-            </div>
+            <div id="status-msg-dron" class="status-msg" style="display: none;">Cargando servicios de dron...</div>
+            <div class="grid" id="drone-grid"></div>
 
         </div>
 
@@ -292,10 +258,10 @@
     </footer>
 
     <script>
+        // URL de tu planilla publicada en CSV (lee todo el documento)
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTvL1QDJehc_On3y8fXAX3e2lCusKoS5yTz5CxCWRkg7-Vv4hI46s2r8Du3d-QlqPQ_ZmL-pEW80RA/pub?output=csv';
         let carrito = [];
 
-        // Cambio de Pestañas
         function cambiarPestana(nombreTab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -310,7 +276,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Modal
         function abrirModal(src, titulo) {
             document.getElementById('image-modal').style.display = 'flex';
             document.getElementById('modal-img').src = src;
@@ -323,7 +288,6 @@
 
         document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cerrarModal(); });
 
-        // Carrito
         function agregarAlCarrito(nombre, precio) {
             const itemExistente = carrito.find(item => item.nombre === nombre);
             if (itemExistente) {
@@ -418,12 +382,13 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
-        // Cargar Catálogo desde CSV
-        async function cargarCatalogo() {
-            const statusMsg = document.getElementById('status-msg');
+        // Cargar Catálogo e Información desde Google Sheets
+        async function cargarDatos() {
+            const statusMsg3D = document.getElementById('status-msg-3d');
             const catalogoContainer = document.getElementById('catalogo-container');
             const productGrid = document.getElementById('product-grid');
             const accessoriesGrid = document.getElementById('accessories-grid');
+            const droneGrid = document.getElementById('drone-grid');
 
             try {
                 const response = await fetch(CSV_URL);
@@ -433,16 +398,17 @@
                 const rows = csvData.split('\n').map(r => r.trim()).filter(r => r.length > 0);
                 
                 if (rows.length <= 1) {
-                    statusMsg.innerHTML = 'La planilla parece estar vacía.';
+                    statusMsg3D.innerHTML = 'La planilla parece estar vacía.';
                     return;
                 }
 
-                statusMsg.style.display = 'none';
+                statusMsg3D.style.display = 'none';
                 catalogoContainer.style.display = 'block';
                 productGrid.innerHTML = '';
                 accessoriesGrid.innerHTML = '';
+                droneGrid.innerHTML = '';
 
-                let esSeccionAccesorio = false;
+                let seccionActual = 'productos'; // 'productos', 'accesorios', o 'drones'
 
                 for (let i = 1; i < rows.length; i++) {
                     const columns = rows[i].split('\t').length > 1 ? rows[i].split('\t') : rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -454,45 +420,68 @@
                     const imagen = cleanCols[3] || 'NIM_archivos/placeholder.jpg';
                     const activo = (cleanCols[4] || 'SI').toUpperCase();
 
+                    // Detectar cambios de sección mediante separadores
                     if (nombre.includes('ACCESORIOS') || nombre.includes('---')) {
-                        esSeccionAccesorio = true;
+                        seccionActual = 'accesorios';
+                        continue;
+                    }
+                    if (nombre.includes('DRON') || nombre.includes('SERVICIOS')) {
+                        seccionActual = 'drones';
                         continue;
                     }
 
                     if (nombre && (activo === 'SI' || activo === 'TRUE' || activo === 'VERDADERO')) {
-                        const precioNum = parseInt(precioStr.replace(/[^0-9]/g, '')) || 0;
-                        const precioFormateado = precioNum > 0 ? `$${precioNum.toLocaleString('es-AR')}` : '';
-                        const btnId = `btn-${btoa(nombre).replace(/=/g, '')}`;
+                        
+                        if (seccionActual === 'drones') {
+                            // Renderizar tarjeta de servicio de dron
+                            const mensajeWA = encodeURIComponent(`Hola Martín! Quiero consultar por el servicio de ${nombre}`);
+                            const droneCard = document.createElement('div');
+                            droneCard.className = 'drone-card';
+                            droneCard.innerHTML = `
+                                <div>
+                                    <h3>${nombre}</h3>
+                                    <p>${detalles}</p>
+                                </div>
+                                <a class="btn-drone-consult" href="https://wa.me/?text=${mensajeWA}" target="_blank">Consultar Cotización 📱</a>
+                            `;
+                            droneGrid.appendChild(droneCard);
 
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.innerHTML = `
-                            <img src="${imagen}" alt="${nombre}" 
-                                 onclick="abrirModal('${imagen}', '${nombre}')" 
-                                 onerror="this.src='https://via.placeholder.com/300x180?text=NIM+3D+Art'">
-                            <div class="card-content">
-                                <div class="card-title">${nombre}</div>
-                                <div class="card-details">${detalles}</div>
-                                <div class="card-price">${precioFormateado}</div>
-                                <button id="${btnId}" class="btn-add" onclick="agregarAlCarrito('${nombre.replace(/'/g, "\\'")}', ${precioNum})">Agregar al pedido 🛒</button>
-                            </div>
-                        `;
-
-                        if (esSeccionAccesorio) {
-                            accessoriesGrid.appendChild(card);
                         } else {
-                            productGrid.appendChild(card);
+                            // Renderizar productos 3D o accesorios
+                            const precioNum = parseInt(precioStr.replace(/[^0-9]/g, '')) || 0;
+                            const precioFormateado = precioNum > 0 ? `$${precioNum.toLocaleString('es-AR')}` : precioStr;
+                            const btnId = `btn-${btoa(nombre).replace(/=/g, '')}`;
+
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            card.innerHTML = `
+                                <img src="${imagen}" alt="${nombre}" 
+                                     onclick="abrirModal('${imagen}', '${nombre}')" 
+                                     onerror="this.src='https://via.placeholder.com/300x180?text=NIM+3D+Art'">
+                                <div class="card-content">
+                                    <div class="card-title">${nombre}</div>
+                                    <div class="card-details">${detalles}</div>
+                                    <div class="card-price">${precioFormateado}</div>
+                                    <button id="${btnId}" class="btn-add" onclick="agregarAlCarrito('${nombre.replace(/'/g, "\\'")}', ${precioNum})">Agregar al pedido 🛒</button>
+                                </div>
+                            `;
+
+                            if (seccionActual === 'accesorios') {
+                                accessoriesGrid.appendChild(card);
+                            } else {
+                                productGrid.appendChild(card);
+                            }
                         }
                     }
                 }
 
             } catch (error) {
                 console.error(error);
-                statusMsg.innerHTML = '<p style="color:red;">Error al conectar con Google Sheets. Verifica que la planilla siga publicada en la web.</p>';
+                statusMsg3D.innerHTML = '<p style="color:red;">Error al conectar con Google Sheets. Verifica que la planilla siga publicada en la web.</p>';
             }
         }
 
-        window.onload = cargarCatalogo;
+        window.onload = cargarDatos;
     </script>
 </body>
 </html>
