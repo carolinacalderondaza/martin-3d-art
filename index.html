@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIM - We print beautiful 3D art</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lato', sans-serif; }
+        body { background-color: #f4f6f9; color: #333; line-height: 1.6; }
+        header { background: #111; color: #fff; padding: 2.5rem 1rem; text-align: center; }
+        header h1 { font-size: 2.5rem; margin-bottom: 0.3rem; color: #f39c12; letter-spacing: 2px; }
+        header p { font-size: 1.1rem; color: #aaa; }
+        
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        
+        .palette-section { background: #fff; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .palette-section h3 { color: #2c3e50; margin-bottom: 0.5rem; }
+        .palette-section img { max-width: 100%; height: auto; border-radius: 6px; margin-top: 1rem; }
+
+        h2.section-title { font-size: 1.8rem; margin: 2rem 0 1rem; border-bottom: 2px solid #ddd; padding-bottom: 0.5rem; color: #2c3e50; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        
+        .card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 230px; object-fit: cover; background: #eee; }
+        
+        .card-content { padding: 1.2rem; display: flex; flex-direction: column; flex-grow: 1; }
+        .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: #2c3e50; }
+        .card-details { font-size: 0.9rem; color: #666; margin-bottom: 1rem; flex-grow: 1; }
+        .card-price { font-size: 1.3rem; font-weight: 900; color: #e67e22; margin-bottom: 1rem; }
+        
+        .btn-wa { background: #27ae60; color: white; border: none; padding: 0.75rem; border-radius: 5px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; display: block; transition: background 0.2s; }
+        .btn-wa:hover { background: #219653; }
+        
+        #loading { text-align: center; padding: 3rem; font-size: 1.2rem; color: #777; }
+        
+        footer { background: #222; color: #aaa; text-align: center; padding: 2rem; margin-top: 3rem; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>NIM</h1>
+        <p>We print beautiful 3D art — AMORES PARA TODOS</p>
+    </header>
+
+    <div class="container">
+
+        <!-- PALETA DE COLORES -->
+        <div class="palette-section">
+            <h3>Paleta de colores disponibles</h3>
+            <p>Elegí el color y material ideal para tu impresión 3D.</p>
+            <img src="NIM_archivos/67b6314e94e7c174a98dfa31_colores.jpeg" alt="Paleta de Colores">
+        </div>
+
+        <h2 class="section-title">Catálogo de Productos</h2>
+
+        <div id="loading">Cargando catálogo actualizado...</div>
+        <div class="grid" id="product-grid"></div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 NIM 3D Art. Catálogo dinámico conectado a Google Sheets.</p>
+    </footer>
+
+    <script>
+        // === COLOCA AQUÍ EL ID DE TU GOOGLE SHEET ===
+        const SHEET_ID = '2PACX-1vSTvL1QDJehc_On3y8fXAX3e2lCusKoS5yTz5CxCWRkg7-Vv4hI46s2r8Du3d-QlqPQ_ZmL-pEW80RA';
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+
+        async function cargarProductos() {
+            const grid = document.getElementById('product-grid');
+            const loading = document.getElementById('loading');
+
+            try {
+                const response = await fetch(SHEET_URL);
+                const text = await response.text();
+                
+                // Limpiar la respuesta JSONP de Google
+                const jsonString = text.substring(47, text.length - 2);
+                const data = JSON.parse(jsonString);
+
+                const rows = data.table.rows;
+                loading.style.display = 'none';
+                grid.innerHTML = '';
+
+                rows.forEach(row => {
+                    const nombre = row.c[0] ? row.c[0].v : '';
+                    const precio = row.c[1] ? row.c[1].v : '';
+                    const detalles = row.c[2] ? row.c[2].v : '';
+                    const imagen = row.c[3] ? row.c[3].v : '';
+                    const activo = row.c[4] ? String(row.c[4].v).toUpperCase().trim() : 'SI';
+
+                    if (nombre && (activo === 'SI' || activo === 'VERDADERO' || activo === 'TRUE')) {
+                        const precioFormateado = Number(precio).toLocaleString('es-AR');
+                        const mensajeWA = encodeURIComponent(`Hola! Quiero consultar por ${nombre} ($${precioFormateado})`);
+                        
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <img src="${imagen}" alt="${nombre}" onerror="this.src='https://via.placeholder.com/300x220?text=Sin+Imagen'">
+                            <div class="card-content">
+                                <div class="card-title">${nombre}</div>
+                                <div class="card-details">${detalles}</div>
+                                <div class="card-price">$${precioFormateado}</div>
+                                <a class="btn-wa" href="https://wa.me/?text=${mensajeWA}" target="_blank">Encargar por WhatsApp</a>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error al cargar la planilla:', error);
+                loading.innerHTML = '<p style="color:red;">Ocurrió un error al cargar el catálogo. Por favor, verifica la configuración de tu planilla.</p>';
+            }
+        }
+
+        window.onload = cargarProductos;
+    </script>
+</body>
+</html>
