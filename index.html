@@ -134,7 +134,7 @@
         }
         .btn-drone-consult:hover { background: #219653; }
 
-        /* Tarjetas de trabajos realizados con foto grande */
+        /* Tarjetas de trabajos realizados dinámicas */
         .work-card {
             background: #fff;
             border-radius: 8px;
@@ -149,6 +149,7 @@
             object-fit: cover;
             cursor: pointer;
             transition: opacity 0.2s;
+            background-color: #eee;
         }
         .work-card img:hover { opacity: 0.9; }
         .work-content { padding: 1.2rem; }
@@ -219,7 +220,7 @@
                 <img src="NIM_archivos/67b6314e94e7c174a98dfa31_colores.jpeg" alt="Paleta de Colores" onclick="abrirModal(this.src, 'Paleta de colores disponibles')">
             </div>
 
-            <div id="status-msg-3d" class="status-msg">Cargando catálogo...</div>
+            <div id="status-msg-3d" class="status-msg">Cargando catálogo desde Google Sheets...</div>
 
             <div id="catalogo-container" style="display: none;">
                 <h2 class="section-title">Catálogo de Productos</h2>
@@ -246,24 +247,8 @@
             <div id="status-msg-dron" class="status-msg">Cargando servicios de dron...</div>
             <div class="grid" id="drone-grid"></div>
 
-            <h2 class="section-title" style="margin-top: 3rem; margin-bottom: 1.5rem;">Trabajos Realizados</h2>
-            <div class="grid" id="drone-works-grid">
-                <!-- Ejemplo de tarjetas de trabajos realizados -->
-                <div class="work-card">
-                    <img src="NIM_archivos/placeholder.jpg" alt="Relevamiento de Obra" onclick="abrirModal(this.src, 'Relevamiento y Seguimiento de Obra')">
-                    <div class="work-content">
-                        <div class="work-title">Relevamiento de Obra</div>
-                        <div class="work-desc">Seguimiento aéreo de avance de construcción y techos en Bariloche.</div>
-                    </div>
-                </div>
-                <div class="work-card">
-                    <img src="NIM_archivos/placeholder.jpg" alt="Fotografía Promocional" onclick="abrirModal(this.src, 'Tomas Promocionales 4K')">
-                    <div class="work-content">
-                        <div class="work-title">Tomas Promocionales 4K</div>
-                        <div class="work-desc">Captura de paisajes y propiedades para proyectos turísticos.</div>
-                    </div>
-                </div>
-            </div>
+            <h2 class="section-title" id="title-drone-works" style="margin-top: 3rem; margin-bottom: 1.5rem; display: none;">Trabajos Realizados</h2>
+            <div class="grid" id="drone-works-grid"></div>
 
         </div>
 
@@ -486,9 +471,12 @@
             }
         }
 
+        // Cargar Servicios y Trabajos Realizados de Dron desde la planilla
         async function cargarServiciosDron() {
             const statusMsgDron = document.getElementById('status-msg-dron');
             const droneGrid = document.getElementById('drone-grid');
+            const droneWorksGrid = document.getElementById('drone-works-grid');
+            const titleDroneWorks = document.getElementById('title-drone-works');
 
             try {
                 const response = await fetch(CSV_DRONES_URL);
@@ -499,29 +487,55 @@
 
                 statusMsgDron.style.display = 'none';
                 droneGrid.innerHTML = '';
+                droneWorksGrid.innerHTML = '';
 
-            for (let i = 1; i < rows.length; i++) {
+                let modoTrabajos = false;
+
+                for (let i = 1; i < rows.length; i++) {
                     const columns = rows[i].split('\t').length > 1 ? rows[i].split('\t') : rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     const cleanCols = columns.map(c => c.replace(/^"|"$/g, '').trim());
                     
                     const nombre = cleanCols[0] || '';
                     const detalles = cleanCols[2] || '';
+                    const imagen = cleanCols[3] || 'NIM_archivos/placeholder.jpg';
                     const activo = (cleanCols[4] || 'SI').toUpperCase();
 
                     if (nombre.includes('function') || nombre.includes('Copyright') || nombre.includes('SPDX') || nombre.includes('switchToSheet') || nombre.includes('Closure')) continue;
 
+                    // Detectar separador de Trabajos Realizados
+                    if (nombre.includes('TRABAJOS') || nombre.includes('--- TRABAJOS')) {
+                        modoTrabajos = true;
+                        titleDroneWorks.style.display = 'block';
+                        continue;
+                    }
+
                     if (nombre && (activo === 'SI' || activo === 'TRUE' || activo === 'VERDADERO') && !nombre.includes('---')) {
-                        const mensajeWA = encodeURIComponent(`Hola Martín! Quiero consultar por el servicio de ${nombre}`);
-                        const droneCard = document.createElement('div');
-                        droneCard.className = 'drone-card';
-                        droneCard.innerHTML = `
-                            <div>
-                                <h3>${nombre}</h3>
-                                <p>${detalles}</p>
-                            </div>
-                            <a class="btn-drone-consult" href="https://wa.me/?text=${mensajeWA}" target="_blank">Consultar Cotización 📱</a>
-                        `;
-                        droneGrid.appendChild(droneCard);
+                        if (modoTrabajos) {
+                            // Crear tarjeta de trabajo realizado
+                            const workCard = document.createElement('div');
+                            workCard.className = 'work-card';
+                            workCard.innerHTML = `
+                                <img src="${imagen}" alt="${nombre}" onclick="abrirModal('${imagen}', '${nombre}')" onerror="this.src='https://via.placeholder.com/400x200?text=Trabajo+con+Dron'">
+                                <div class="work-content">
+                                    <div class="work-title">${nombre}</div>
+                                    <div class="work-desc">${detalles}</div>
+                                </div>
+                            `;
+                            droneWorksGrid.appendChild(workCard);
+                        } else {
+                            // Crear tarjeta de servicio ofrecido
+                            const mensajeWA = encodeURIComponent(`Hola Martín! Quiero consultar por el servicio de ${nombre}`);
+                            const droneCard = document.createElement('div');
+                            droneCard.className = 'drone-card';
+                            droneCard.innerHTML = `
+                                <div>
+                                    <h3>${nombre}</h3>
+                                    <p>${detalles}</p>
+                                </div>
+                                <a class="btn-drone-consult" href="https://wa.me/?text=${mensajeWA}" target="_blank">Consultar Cotización 📱</a>
+                            `;
+                            droneGrid.appendChild(droneCard);
+                        }
                     }
                 }
 
