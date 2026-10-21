@@ -14,6 +14,32 @@
         
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         
+        /* === PANEL DE CARRITO / PEDIDO ARRIBA === */
+        .cart-panel {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            border: 2px solid #f39c12;
+        }
+        .cart-panel h3 { color: #2c3e50; margin-bottom: 1rem; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+        .cart-item-controls { display: flex; align-items: center; gap: 10px; }
+        .cart-item-controls button { background: #ddd; border: none; width: 25px; height: 25px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .cart-item-controls button:hover { background: #ccc; }
+        
+        .cart-total { font-size: 1.4rem; font-weight: 900; color: #e67e22; text-align: right; margin: 1.5rem 0; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 0.5rem; color: #2c3e50; }
+        .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 5px; font-family: 'Lato', sans-serif; font-size: 1rem; resize: vertical; min-height: 80px; }
+        
+        .btn-checkout { background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; text-align: center; transition: background 0.2s; }
+        .btn-checkout:hover { background: #219653; }
+
+        .empty-cart { color: #888; font-style: italic; text-align: center; padding: 1rem 0; }
+
         .palette-section { background: #fff; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .palette-section h3 { color: #2c3e50; margin-bottom: 0.5rem; }
         .palette-section img { max-width: 100%; height: auto; border-radius: 6px; margin-top: 1rem; cursor: pointer; transition: opacity 0.2s; }
@@ -41,34 +67,10 @@
         .card-details { font-size: 0.88rem; color: #666; margin-bottom: 1rem; flex-grow: 1; }
         .card-price { font-size: 1.25rem; font-weight: 900; color: #e67e22; margin-bottom: 1rem; }
         
-        .btn-add { background: #3498db; color: white; border: none; padding: 0.7rem; border-radius: 5px; font-weight: bold; cursor: pointer; text-align: center; transition: background 0.2s; }
+        /* === BOTÓN DINÁMICO DE SELECCIÓN === */
+        .btn-add { background: #3498db; color: white; border: none; padding: 0.7rem; border-radius: 5px; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.2s; }
         .btn-add:hover { background: #2980b9; }
-
-        /* === PANEL DE PEDIDO / CARRITO FLOTANTE === */
-        .cart-panel {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            padding: 2rem;
-            margin-top: 3rem;
-            border: 2px solid #f39c12;
-        }
-        .cart-panel h3 { color: #2c3e50; margin-bottom: 1rem; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; font-size: 0.95rem; }
-        .cart-item-controls { display: flex; align-items: center; gap: 10px; }
-        .cart-item-controls button { background: #ddd; border: none; width: 25px; height: 25px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .cart-item-controls button:hover { background: #ccc; }
-        
-        .cart-total { font-size: 1.4rem; font-weight: 900; color: #e67e22; text-align: right; margin: 1.5rem 0; }
-        
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 0.5rem; color: #2c3e50; }
-        .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 5px; font-family: 'Lato', sans-serif; font-size: 1rem; resize: vertical; min-height: 80px; }
-        
-        .btn-checkout { background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; text-align: center; transition: background 0.2s; }
-        .btn-checkout:hover { background: #219653; }
-
-        .empty-cart { color: #888; font-style: italic; text-align: center; padding: 1rem 0; }
+        .btn-add.selected { background: #27ae60 !important; }
 
         /* === MODAL DE FOTOS === */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
@@ -90,6 +92,26 @@
 
     <div class="container">
 
+        <!-- PANEL DE CARRITO Y PEDIDO (UBICADO ARRIBA) -->
+        <div class="cart-panel" id="cart-section">
+            <h3>🛒 Tu Pedido Actual</h3>
+            <div id="cart-items-container">
+                <p class="empty-cart">Aún no has agregado ningún producto a tu pedido.</p>
+            </div>
+            
+            <div class="cart-total" id="cart-total-display" style="display: none;">
+                Total estimado: $0
+            </div>
+
+            <div id="checkout-form-container" style="display: none;">
+                <div class="form-group">
+                    <label for="colores-cliente">🎨 Indica aquí los colores deseados para tus ítems:</label>
+                    <textarea id="colores-cliente" placeholder="Ej: Deadpool en rojo y negro, Batman en gris oscuro, Mici20 con camisa blanca..."></textarea>
+                </div>
+                <button class="btn-checkout" onclick="enviarPedidoWhatsApp()">Enviar Pedido por WhatsApp 📱</button>
+            </div>
+        </div>
+
         <!-- PALETA DE COLORES -->
         <div class="palette-section">
             <h3>Paleta de colores disponibles</h3>
@@ -105,26 +127,6 @@
 
             <h2 class="section-title" style="margin-top: 3rem;">Accesorios y Adicionales</h2>
             <div class="grid" id="accessories-grid"></div>
-
-            <!-- PANEL DE CARRITO Y PEDIDO -->
-            <div class="cart-panel" id="cart-section">
-                <h3>🛒 Tu Pedido Actual</h3>
-                <div id="cart-items-container">
-                    <p class="empty-cart">Aún no has agregado ningún producto a tu pedido.</p>
-                </div>
-                
-                <div class="cart-total" id="cart-total-display" style="display: none;">
-                    Total estimado: $0
-                </div>
-
-                <div id="checkout-form-container" style="display: none;">
-                    <div class="form-group">
-                        <label for="colores-cliente">🎨 Indica aquí los colores deseados para tus ítems:</label>
-                        <textarea id="colores-cliente" placeholder="Ej: Deadpool en rojo y negro, Batman en gris oscuro, Mici20 con camisa blanca..."></textarea>
-                    </div>
-                    <button class="btn-checkout" onclick="enviarPedidoWhatsApp()">Enviar Pedido por WhatsApp 📱</button>
-                </div>
-            </div>
         </div>
 
     </div>
@@ -168,6 +170,7 @@
                 carrito.push({ nombre, precio, cantidad: 1 });
             }
             actualizarCarrito();
+            actualizarBotonesSeleccionados();
         }
 
         function cambiarCantidad(nombre, delta) {
@@ -179,6 +182,25 @@
                 }
             }
             actualizarCarrito();
+            actualizarBotonesSeleccionados();
+        }
+
+        function actualizarBotonesSeleccionados() {
+            // Limpiar todos los botones
+            const botones = document.querySelectorAll('.btn-add');
+            botones.forEach(btn => {
+                btn.classList.remove('selected');
+                btn.innerText = 'Agregar al pedido 🛒';
+            });
+
+            // Marcar los que están en el carrito
+            carrito.forEach(item => {
+                const btn = document.getElementById(`btn-${btoa(item.nombre).replace(/=/g, '')}`);
+                if (btn) {
+                    btn.classList.add('selected');
+                    btn.innerText = `Agregado (${item.cantidad}) ✓`;
+                }
+            });
         }
 
         function actualizarCarrito() {
@@ -190,6 +212,7 @@
                 container.innerHTML = '<p class="empty-cart">Aún no has agregado ningún producto a tu pedido.</p>';
                 totalDisplay.style.display = 'none';
                 checkoutContainer.style.display = 'none';
+                actualizarBotonesSeleccionados();
                 return;
             }
 
@@ -206,8 +229,8 @@
                     <span><strong>${item.cantidad}x</strong> ${item.nombre}</span>
                     <div class="cart-item-controls">
                         <span>$${subtotal.toLocaleString('es-AR')}</span>
-                        <button onclick="cambiarCantidad('${item.nombre}', -1)">-</button>
-                        <button onclick="cambiarCantidad('${item.nombre}', 1)">+</button>
+                        <button onclick="cambiarCantidad('${item.nombre.replace(/'/g, "\\'")}', -1)">-</button>
+                        <button onclick="cambiarCantidad('${item.nombre.replace(/'/g, "\\'")}', 1)">+</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -283,6 +306,7 @@
                     if (nombre && (activo === 'SI' || activo === 'TRUE' || activo === 'VERDADERO')) {
                         const precioNum = parseInt(precioStr.replace(/[^0-9]/g, '')) || 0;
                         const precioFormateado = precioNum > 0 ? `$${precioNum.toLocaleString('es-AR')}` : '';
+                        const btnId = `btn-${btoa(nombre).replace(/=/g, '')}`;
 
                         const card = document.createElement('div');
                         card.className = 'card';
@@ -294,7 +318,7 @@
                                 <div class="card-title">${nombre}</div>
                                 <div class="card-details">${detalles}</div>
                                 <div class="card-price">${precioFormateado}</div>
-                                <button class="btn-add" onclick="agregarAlCarrito('${nombre.replace(/'/g, "\\'")}', ${precioNum})">Agregar al pedido 🛒</button>
+                                <button id="${btnId}" class="btn-add" onclick="agregarAlCarrito('${nombre.replace(/'/g, "\\'")}', ${precioNum})">Agregar al pedido 🛒</button>
                             </div>
                         `;
 
