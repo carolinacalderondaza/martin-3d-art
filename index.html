@@ -34,7 +34,7 @@
         .btn-wa { background: #27ae60; color: white; border: none; padding: 0.75rem; border-radius: 5px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; display: block; transition: background 0.2s; }
         .btn-wa:hover { background: #219653; }
         
-        #loading { text-align: center; padding: 3rem; font-size: 1.2rem; color: #777; }
+        #status-msg { text-align: center; padding: 2rem; font-size: 1.2rem; color: #666; }
         
         footer { background: #222; color: #aaa; text-align: center; padding: 2rem; margin-top: 3rem; font-size: 0.9rem; }
     </style>
@@ -55,10 +55,15 @@
             <img src="NIM_archivos/67b6314e94e7c174a98dfa31_colores.jpeg" alt="Paleta de Colores">
         </div>
 
-        <h2 class="section-title">Catálogo de Productos</h2>
+        <div id="status-msg">Cargando catálogo...</div>
 
-        <div id="loading">Cargando catálogo actualizado...</div>
-        <div class="grid" id="product-grid"></div>
+        <div id="catalogo-container" style="display: none;">
+            <h2 class="section-title">Catálogo de Productos</h2>
+            <div class="grid" id="product-grid"></div>
+
+            <h2 class="section-title" style="margin-top: 3rem;">Accesorios y Adicionales</h2>
+            <div class="grid" id="accessories-grid"></div>
+        </div>
 
     </div>
 
@@ -67,59 +72,104 @@
     </footer>
 
     <script>
-        // === COLOCA AQUÍ EL ID DE TU GOOGLE SHEET ===
-        const SHEET_ID = '1EKRcR5aEsojfGULduv0YLrOrQAQWMREUbadOiXTeRLA';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+        // URL pública de exportación CSV de tu planilla publicada
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTvL1QDJehc_On3y8fXAX3e2lCusKoS5yTz5CxCWRkg7-Vv4hI46s2r8Du3d-QlqPQ_ZmL-pEW80RA/pub?output=csv';
 
-        async function cargarProductos() {
-            const grid = document.getElementById('product-grid');
-            const loading = document.getElementById('loading');
+        // Función para parsear CSV respetando comillas y comas
+        function parseCSV(text) {
+            const lines = text.split('\n');
+            const result = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Expresión regular para separar por coma respetando comillas
+                const row = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
+                const cleanRow = row.map(val => val.replace(/^"|"$/g, '').trim());
+                result.push(cleanRow);
+            }
+            return result;
+        }
+
+        async function cargarCatalogo() {
+            const statusMsg = document.getElementById('status-msg');
+            const catalogoContainer = document.getElementById('catalogo-container');
+            const productGrid = document.getElementById('product-grid');
+            const accessoriesGrid = document.getElementById('accessories-grid');
 
             try {
-                const response = await fetch(SHEET_URL);
-                const text = await response.text();
+                // Fetch directo al CSV publicado de Google Sheets
+                const response = await fetch(CSV_URL);
+                if (!response.ok) throw new Error('No se pudo acceder a la planilla');
                 
-                // Limpiar la respuesta JSONP de Google
-                const jsonString = text.substring(47, text.length - 2);
-                const data = JSON.parse(jsonString);
+                const csvData = await response.text();
+                
+                // Separar filas
+                const rows = csvData.split('\n').map(r => r.trim()).filter(r => r.length > 0);
+                
+                if (rows.length <= 1) {
+                    statusMsg.innerHTML = 'La planilla parece estar vacía.';
+                    return;
+                }
 
-                const rows = data.table.rows;
-                loading.style.display = 'none';
-                grid.innerHTML = '';
+                statusMsg.style.display = 'none';
+                catalogoContainer.style.display = 'block';
+                productGrid.innerHTML = '';
+                accessoriesGrid.innerHTML = '';
 
-                rows.forEach(row => {
-                    const nombre = row.c[0] ? row.c[0].v : '';
-                    const precio = row.c[1] ? row.c[1].v : '';
-                    const detalles = row.c[2] ? row.c[2].v : '';
-                    const imagen = row.c[3] ? row.c[3].v : '';
-                    const activo = row.c[4] ? String(row.c[4].v).toUpperCase().trim() : 'SI';
+                let esSeccionAccesorio = false;
 
-                    if (nombre && (activo === 'SI' || activo === 'VERDADERO' || activo === 'TRUE')) {
-                        const precioFormateado = Number(precio).toLocaleString('es-AR');
-                        const mensajeWA = encodeURIComponent(`Hola! Quiero consultar por ${nombre} ($${precioFormateado})`);
-                        
+                // Empezar desde la fila 1 (salteando la cabecera)
+                for (let i = 1; i < rows.length; i++) {
+                    const columns = rows[i].split('\t').length > 1 ? rows[i].split('\t') : rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
+                    const cleanCols = columns.map(c => c.replace(/^"|"$/g, '').trim());
+                    
+                    const nombre = cleanCols[0] || '';
+                    const precioStr = cleanCols[1] || '';
+                    const detalles = cleanCols[2] || '';
+                    const imagen = cleanCols[3] || 'NIM_archivos/placeholder.jpg';
+                    const activo = (cleanCols[4] || 'SI').toUpperCase();
+
+                    // Detectar separador de sección
+                    if (nombre.includes('ACCESORIOS') || nombre.includes('---')) {
+                        esSeccionAccesorio = true;
+                        continue;
+                    }
+
+                    if (nombre && (activo === 'SI' || activo === 'TRUE' || activo === 'VERDADERO')) {
+                        const precioNum = parseInt(precioStr.replace(/[^0-9]/g, '')) || 0;
+                        const precioFormateado = precioNum > 0 ? `$${precioNum.toLocaleString('es-AR')}` : '';
+                        const mensajeWA = encodeURIComponent(`Hola! Quiero consultar por ${nombre} (${precioFormateado})`);
+
                         const card = document.createElement('div');
                         card.className = 'card';
                         card.innerHTML = `
-                            <img src="${imagen}" alt="${nombre}" onerror="this.src='https://via.placeholder.com/300x220?text=Sin+Imagen'">
+                            <img src="${imagen}" alt="${nombre}" onerror="this.src='https://via.placeholder.com/300x230?text=NIM+3D+Art'">
                             <div class="card-content">
                                 <div class="card-title">${nombre}</div>
                                 <div class="card-details">${detalles}</div>
-                                <div class="card-price">$${precioFormateado}</div>
+                                <div class="card-price">${precioFormateado}</div>
                                 <a class="btn-wa" href="https://wa.me/?text=${mensajeWA}" target="_blank">Encargar por WhatsApp</a>
                             </div>
                         `;
-                        grid.appendChild(card);
+
+                        if (esSeccionAccesorio) {
+                            accessoriesGrid.appendChild(card);
+                        } else {
+                            productGrid.appendChild(card);
+                        }
                     }
-                });
+                }
 
             } catch (error) {
-                console.error('Error al cargar la planilla:', error);
-                loading.innerHTML = '<p style="color:red;">Ocurrió un error al cargar el catálogo. Por favor, verifica la configuración de tu planilla.</p>';
+                console.error(error);
+                statusMsg.innerHTML = '<p style="color:red;">Error al conectar con Google Sheets. Verifica que la planilla siga publicada en la web.</p>';
             }
         }
 
-        window.onload = cargarProductos;
+        window.onload = cargarCatalogo;
     </script>
 </body>
 </html>
