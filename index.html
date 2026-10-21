@@ -18,6 +18,7 @@
             justify-content: center;
             gap: 15px;
             margin-top: 1.5rem;
+            flex-wrap: wrap;
         }
         .tab-btn {
             background: #222;
@@ -37,6 +38,47 @@
         
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
+        /* === SECCIÓN SALUDO Y BIENVENIDA DE MARTÍN === */
+        .welcome-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fffbf2 100%);
+            border-left: 6px solid #f39c12;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            position: relative;
+        }
+        .welcome-card h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .welcome-card p {
+            font-size: 1.05rem;
+            color: #444;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        .welcome-highlight {
+            background-color: #fff3cd;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #856404;
+        }
+        .drone-link-btn {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #2980b9;
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .drone-link-btn:hover { color: #1a5276; }
 
         /* === PANEL DE CARRITO / PEDIDO === */
         .cart-panel {
@@ -149,6 +191,18 @@
         <!-- PESTAÑA 1: CATÁLOGO DE IMPRESIÓN 3D -->
         <div id="tab-catalogo" class="tab-content active">
             
+            <!-- TARJETA DE BIENVENIDA / PRESENTACIÓN DE MARTÍN -->
+            <div class="welcome-card">
+                <h2>👋 ¡Hola! Soy Martín</h2>
+                <p>
+                    Tengo 10 años, me apasiona la tecnología y soy el creador de este emprendimiento. Te ofrezco mi servicio de <span class="welcome-highlight">impresiones 3D</span>, donde podés pedirme las piezas y figuras que están de moda, o podemos evaluar hacer una <span class="welcome-highlight">pieza a medida</span> por si se te rompió algo y necesitás reemplazarlo.
+                </p>
+                <p>
+                    Además, realizo <span class="welcome-highlight">servicios de videos con dron</span> para tomas promocionales, relevamiento de techos, inspección de estructuras altas, mediciones de terrenos y ¡muchas posibilidades más!
+                </p>
+                <span class="drone-link-btn" onclick="cambiarPestana('dron')">👉 Conocé más sobre mis servicios con Dron haciendo clic acá</span>
+            </div>
+
             <!-- PANEL DE CARRITO Y PEDIDO -->
             <div class="cart-panel" id="cart-section">
                 <h3>🛒 Tu Pedido de Impresión 3D</h3>
@@ -202,7 +256,7 @@
                         <h3>📐 Relevamientos y Fotogrametría</h3>
                         <p>Mapeo aéreo de terrenos, modelos 3D de elevación, ortomosaicos de alta resolución y curvas de nivel ideales para topografía, arquitectura y obras civiles.</p>
                     </div>
-                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola!%20Quiero%20consultar%20por%20un%20servicio%20de%20Relevamiento%20con%20Dron" target="_blank">Consultar Cotización 📱</a>
+                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola%20Mart%C3%ADn!%20Quiero%20consultar%20por%20un%20servicio%20de%20Relevamiento%20con%20Dron" target="_blank">Consultar Cotización 📱</a>
                 </div>
 
                 <div class="drone-card">
@@ -210,7 +264,7 @@
                         <h3>🏗️ Inspección Técnica y Avances de Obra</h3>
                         <p>Seguimiento periódico de construcciones, inspección de techos, cubiertas y estructuras complejas de difícil acceso sin riesgo humano.</p>
                     </div>
-                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola!%20Quiero%20consultar%20por%20un%20servicio%20de%20Inspecci%C3%B3n%20y%20Seguimiento%20de%20Obra" target="_blank">Consultar Cotización 📱</a>
+                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola%20Mart%C3%ADn!%20Quiero%20consultar%20por%20un%20servicio%20de%20Inspecci%C3%B3n%20y%20Seguimiento%20de%20Obra" target="_blank">Consultar Cotización 📱</a>
                 </div>
 
                 <div class="drone-card">
@@ -218,7 +272,7 @@
                         <h3>🎬 Videos y Fotos Promocionales (4K)</h3>
                         <p>Captura de contenido audiovisual aéreo impactante para bienes raíces, desarrollo turístico, eventos corporativos, deportes y branding.</p>
                     </div>
-                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola!%20Quiero%20consultar%20por%20Video/Fotograf%C3%ADa%20A%C3%A9rea%20Promocional" target="_blank">Consultar Cotización 📱</a>
+                    <a class="btn-drone-consult" href="https://wa.me/?text=Hola%20Mart%C3%ADn!%20Quiero%20consultar%20por%20Video/Fotograf%C3%ADa%20A%C3%A9rea%20Promocional" target="_blank">Consultar Cotización 📱</a>
                 </div>
             </div>
 
@@ -234,7 +288,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 NIM. Impresión 3D Artística & Servicios Aéreos.</p>
+        <p>&copy; 2026 NIM. Impresión 3D Artística & Servicios Aéreos por Martín.</p>
     </footer>
 
     <script>
@@ -253,6 +307,7 @@
                 document.querySelectorAll('.tab-btn')[1].classList.add('active');
                 document.getElementById('tab-dron').classList.add('active');
             }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Modal
@@ -347,7 +402,7 @@
             if (carrito.length === 0) return;
 
             const colores = document.getElementById('colores-cliente').value.trim();
-            let mensaje = "¡Hola! Quiero hacer el siguiente pedido de impresiones 3D:\n\n";
+            let mensaje = "¡Hola Martín! Quiero hacer el siguiente pedido de impresiones 3D:\n\n";
 
             carrito.forEach(item => {
                 mensaje += `• ${item.cantidad}x ${item.nombre} ($${(item.precio * item.cantidad).toLocaleString('es-AR')})\n`;
