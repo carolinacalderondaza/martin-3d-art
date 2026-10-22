@@ -87,8 +87,9 @@
         
         .card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 180px; object-fit: contain; background-color: #fafafa; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
-        
+        .card img, .card video, .card iframe { width: 100%; height: 180px; object-fit: contain; background-color: #fafafa; border-bottom: 1px solid #eee; border: none; }
+        .card img { padding: 10px; cursor: pointer; }
+
         .card-content { padding: 1.2rem; display: flex; flex-direction: column; flex-grow: 1; }
         .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: #2c3e50; }
         .card-details { font-size: 0.88rem; color: #666; margin-bottom: 1rem; flex-grow: 1; }
@@ -134,7 +135,7 @@
         }
         .btn-drone-consult:hover { background: #219653; }
 
-        /* Tarjetas de trabajos realizados dinámicas */
+        /* Tarjetas de trabajos realizados */
         .work-card {
             background: #fff;
             border-radius: 8px;
@@ -143,22 +144,24 @@
             display: flex;
             flex-direction: column;
         }
-        .work-card img {
+        .work-card img, .work-card video, .work-card iframe {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            border: none;
             background-color: #eee;
         }
+        .work-card img { cursor: pointer; }
         .work-card img:hover { opacity: 0.9; }
         .work-content { padding: 1.2rem; }
         .work-title { font-size: 1.1rem; font-weight: 700; color: #2c3e50; margin-bottom: 0.4rem; }
         .work-desc { font-size: 0.9rem; color: #666; }
 
-        /* === MODAL DE FOTOS === */
+        /* === MODAL DE FOTOS Y VIDEOS === */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { margin: auto; display: block; max-width: 90%; max-height: 85vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-body-container { margin: auto; display: block; width: 90%; max-width: 900px; height: 75vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-body-container iframe, .modal-body-container video { width: 100%; height: 100%; border: none; border-radius: 8px; }
+        .modal-body-container img { max-width: 100%; max-height: 75vh; display: block; margin: auto; border-radius: 8px; }
         #modal-caption { margin: 15px auto 0; display: block; width: 80%; text-align: center; color: #fff; font-size: 1.1rem; font-weight: 700; }
         .close-modal { position: absolute; top: 15px; right: 25px; color: #fff; font-size: 35px; font-weight: bold; cursor: pointer; }
         .close-modal:hover { color: #f39c12; }
@@ -173,7 +176,6 @@
         <h1>NIM</h1>
         <p>We print beautiful 3D art & Aerial Drone Services</p>
         
-        <!-- PESTAÑAS DE NAVEGACIÓN -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="cambiarPestana('catalogo')">🎨 Impresión 3D</button>
             <button class="tab-btn" onclick="cambiarPestana('dron')">🚁 Servicios con Dron</button>
@@ -182,7 +184,7 @@
 
     <div class="container">
 
-        <!-- PESTAÑA 1: CATÁLOGO DE IMPRESIÓN 3D -->
+        <!-- PESTAÑA 1: IMPRESIÓN 3D -->
         <div id="tab-catalogo" class="tab-content active">
             
             <div class="welcome-card">
@@ -254,10 +256,10 @@
 
     </div>
 
-    <!-- MODAL DE FOTOS -->
+    <!-- MODAL DE FOTOS Y VIDEOS -->
     <div id="image-modal" class="modal" onclick="cerrarModal()">
         <span class="close-modal" onclick="cerrarModal()">&times;</span>
-        <img class="modal-content" id="modal-img" onclick="event.stopPropagation()">
+        <div class="modal-body-container" id="modal-content-area" onclick="event.stopPropagation()"></div>
         <div id="modal-caption"></div>
     </div>
 
@@ -267,7 +269,7 @@
 
     <script>
         const CSV_PRODUCTOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTvL1QDJehc_On3y8fXAX3e2lCusKoS5yTz5CxCWRkg7-Vv4hI46s2r8Du3d-QlqPQ_ZmL-pEW80RA/pub?output=csv';
-        const CSV_DRONES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTvL1QDJehc_On3y8fXAX3e2lCusKoS5yTz5CxCWRkg7-Vv4hI46s2r8Du3d-QlqPQ_ZmL-pEW80RA/pub?gid=374846440&single=true&output=csv';
+        const CSV_DRONES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTvL1QDJehc_On3y8fXAX3e2lCusKoS5yTz5CxCWRkg7-Vv4hI46s2r8Du3d-QlqPQ_ZmL-pEW80RA/pub?output=csv';
 
         let carrito = [];
 
@@ -285,14 +287,45 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Conversor universal de YouTube (soporta youtu.be/ y watch?v=)
+        function obtenerYouTubeEmbed(url) {
+            if (!url) return null;
+            let videoId = null;
+            if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split('?')[0];
+            } else if (url.includes('watch?v=')) {
+                videoId = url.split('watch?v=')[1].split('&')[0];
+            } else if (url.includes('embed/')) {
+                videoId = url.split('embed/')[1].split('?')[0];
+            }
+            return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+        }
+
+        // Generador Multimedia
+        function generarElementoMedia(src, titulo, esModal = false) {
+            const ytEmbed = obtenerYouTubeEmbed(src);
+            if (ytEmbed) {
+                return `<iframe src="${ytEmbed}" allowfullscreen style="width:100%; height:${esModal ? '70vh' : '200px'};"></iframe>`;
+            } else if (src.endsWith('.mp4') || src.endsWith('.webm')) {
+                return `<video src="${src}" controls ${!esModal ? 'muted autoplay loop' : ''} style="width:100%; height:${esModal ? '70vh' : '200px'}; object-fit:cover;"></video>`;
+            } else {
+                return `<img src="${src}" alt="${titulo}" ${!esModal ? `onclick="abrirModal('${src}', '${titulo}')"` : ''} onerror="this.src='https://via.placeholder.com/300x180?text=NIM+Media'">`;
+            }
+        }
+
         function abrirModal(src, titulo) {
-            document.getElementById('image-modal').style.display = 'flex';
-            document.getElementById('modal-img').src = src;
-            document.getElementById('modal-caption').innerText = titulo;
+            const modal = document.getElementById('image-modal');
+            const contentArea = document.getElementById('modal-content-area');
+            const caption = document.getElementById('modal-caption');
+
+            modal.style.display = 'flex';
+            contentArea.innerHTML = generarElementoMedia(src, titulo, true);
+            caption.innerText = titulo;
         }
 
         function cerrarModal() {
             document.getElementById('image-modal').style.display = 'none';
+            document.getElementById('modal-content-area').innerHTML = '';
         }
 
         document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cerrarModal(); });
@@ -444,9 +477,7 @@
                         const card = document.createElement('div');
                         card.className = 'card';
                         card.innerHTML = `
-                            <img src="${imagen}" alt="${nombre}" 
-                                 onclick="abrirModal('${imagen}', '${nombre}')" 
-                                 onerror="this.src='https://via.placeholder.com/300x180?text=NIM+3D+Art'">
+                            ${generarElementoMedia(imagen, nombre)}
                             <div class="card-content">
                                 <div class="card-title">${nombre}</div>
                                 <div class="card-details">${detalles}</div>
@@ -471,7 +502,6 @@
             }
         }
 
-        // Cargar Servicios y Trabajos Realizados de Dron desde la planilla
         async function cargarServiciosDron() {
             const statusMsgDron = document.getElementById('status-msg-dron');
             const droneGrid = document.getElementById('drone-grid');
@@ -502,7 +532,6 @@
 
                     if (nombre.includes('function') || nombre.includes('Copyright') || nombre.includes('SPDX') || nombre.includes('switchToSheet') || nombre.includes('Closure')) continue;
 
-                    // Detectar separador de Trabajos Realizados
                     if (nombre.includes('TRABAJOS') || nombre.includes('--- TRABAJOS')) {
                         modoTrabajos = true;
                         titleDroneWorks.style.display = 'block';
@@ -511,11 +540,10 @@
 
                     if (nombre && (activo === 'SI' || activo === 'TRUE' || activo === 'VERDADERO') && !nombre.includes('---')) {
                         if (modoTrabajos) {
-                            // Crear tarjeta de trabajo realizado
                             const workCard = document.createElement('div');
                             workCard.className = 'work-card';
                             workCard.innerHTML = `
-                                <img src="${imagen}" alt="${nombre}" onclick="abrirModal('${imagen}', '${nombre}')" onerror="this.src='https://via.placeholder.com/400x200?text=Trabajo+con+Dron'">
+                                ${generarElementoMedia(imagen, nombre)}
                                 <div class="work-content">
                                     <div class="work-title">${nombre}</div>
                                     <div class="work-desc">${detalles}</div>
@@ -523,7 +551,6 @@
                             `;
                             droneWorksGrid.appendChild(workCard);
                         } else {
-                            // Crear tarjeta de servicio ofrecido
                             const mensajeWA = encodeURIComponent(`Hola Martín! Quiero consultar por el servicio de ${nombre}`);
                             const droneCard = document.createElement('div');
                             droneCard.className = 'drone-card';
